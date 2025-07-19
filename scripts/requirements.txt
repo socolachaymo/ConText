@@ -1,0 +1,8 @@
+twelvelabs
+python-dotenv
+google-generativeai
+elevenlabs
+Flask
+scikit-learn
+nltk
+yt-dlp

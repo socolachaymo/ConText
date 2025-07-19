@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dialect-Aware Translator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Dialect-Aware Translator</h1>
+        <p>Enter a dialect phrase below to translate it to standard English.</p>
+
+        <div class="input-section">
+            <textarea id="dialect-input" placeholder="e.g., 'Mi soon come'"></textarea>
+            <button id="translate-btn">Translate</button>
+        </div>
+
+        <div class="results-section" style="display: none;">
+            <h2>Results</h2>
+            <div class="result-item">
+                <h3>Original Transcript (Dialect)</h3>
+                <p id="original-transcript"></p>
+            </div>
+            <div class="result-item">
+                <h3>Translated Text (Standard English)</h3>
+                <p id="translated-text"></p>
+            </div>
+            <div class="result-item">
+                <h3>Translated Audio</h3>
+                <audio id="translated-audio" controls></audio>
+            </div>
+            <div class="feedback-section">
+                <button id="download-txt-btn">Download .txt</button>
+                <button id="download-mp3-btn">Download .mp3</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
