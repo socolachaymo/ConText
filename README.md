@@ -8,6 +8,9 @@ ConText is a powerful tool that translates dialect into standard English and gen
 -   **Custom LLM Translation**: Uses a fine-tuned T5 model to translate dialect to standard English.
 -   **Text-to-Speech**: Generates high-quality audio of the final translation.
 -   **Web Interface**: A simple frontend to input dialectal phrases and receive the translated text and audio.
+    -   **File Upload**: Supports both audio and video file uploads.
+    -   **Live Recording**: Record video and audio directly in the browser.
+    -   **Clear Button**: Easily clear the input and output fields.
 
 ## Project Workflow
 

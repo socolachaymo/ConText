@@ -6,13 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 export const Hero: React.FC = () => {
   const [inputText, setInputText] = useState('');
-  const [outputText, setOutputText] = useState('');
+  const [outputText, setOutputText] = useState('Translation will appear here.');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleTranslate = async () => {
     if (!inputText) return;
     setIsLoading(true);
-    setOutputText('');
+    setOutputText('Translating...');
 
     try {
       const formData = new FormData();
@@ -37,9 +37,14 @@ export const Hero: React.FC = () => {
     }
   };
 
+  const handleClear = () => {
+    setInputText('');
+    setOutputText('Translation will appear here.');
+  };
+
   const handleRecordClick = async () => {
     setIsLoading(true);
-    setOutputText('');
+    setOutputText('Translating...');
 
     try {
       const response = await fetch('/api/record', {
@@ -78,7 +83,7 @@ export const Hero: React.FC = () => {
 
   const translateFile = async (formData: FormData) => {
     setIsLoading(true);
-    setOutputText('');
+    setOutputText('Translating...');
 
     try {
       const response = await fetch('/api/translate', {
@@ -112,49 +117,63 @@ export const Hero: React.FC = () => {
           <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Transform your voice and documents into actionable text with cutting-edge AI processing
           </p>
+          <div className="flex justify-center pt-4">
+            <div className="w-1/3 border-t border-gray-300"></div>
+            <div className="w-1/3 border-t border-gray-300"></div>
+          </div>
         </div>
 
         {/* Action Buttons */}
         <div className="grid md:grid-cols-2 gap-8 mt-16">
           <ActionButton
             icon="microphone"
-            title="Record Audio"
-            description="Capture your voice and convert it to high-quality text with real-time transcription"
+            title="Record Video"
+            description="Capture your Video and convert it to high-quality text with real-time transcription"
             onClick={handleRecordClick}
           />
           
           <ActionButton
             icon="file"
             title="Upload File"
-            description="Process documents, audio files, and images to extract and analyze text content"
+            description="Process documents and audio files to extract and analyze text content"
             onClick={handleFileUploadClick}
           />
         </div>
 
-        {/* Translation Input */}
-        <div className="space-y-4">
-          <Textarea
-            placeholder="Enter dialect phrase here... e.g., 'Mi soon come'"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            className="min-h-[100px] text-lg"
-          />
-          <Button onClick={handleTranslate} disabled={isLoading}>
-            {isLoading ? 'Translating...' : 'Translate'}
-          </Button>
-        </div>
+        {/* Translation Section */}
+        <div className="flex items-stretch justify-center gap-4">
+          {/* Input Textarea */}
+          <div className="flex-1">
+            <Textarea
+              placeholder="Enter dialect phrase here... e.g., 'Mi soon come'"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              className="h-full text-lg"
+            />
+          </div>
 
-        {/* Translation Output */}
-        {outputText && (
-          <Card className="text-left">
-            <CardHeader>
-              <CardTitle>Translation</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg">{outputText}</p>
-            </CardContent>
-          </Card>
-        )}
+          {/* Translate Button */}
+          <div className="flex flex-col items-center gap-4">
+            <Button onClick={handleTranslate} disabled={isLoading} size="icon" className="h-12 w-12">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </Button>
+            <Button onClick={handleClear} variant="outline" size="icon" className="h-12 w-12">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+            </Button>
+          </div>
+
+          {/* Output Card */}
+          <div className="flex-1">
+            <Card className="text-left h-full">
+              <CardHeader>
+                <CardTitle>Translation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-lg">{outputText}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </section>
   );
