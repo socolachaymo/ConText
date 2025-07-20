@@ -1,3 +1,5 @@
+# This script provides a command-line interface to translate a single
+# Caribbean dialect phrase to standard English using the fine-tuned model.
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import argparse
@@ -15,7 +17,7 @@ def translate_with_custom_model(input_text):
         
         # Prepare the input text with the same prompt used during training
         prompt = f"Translate the following Caribbean dialect phrase to standard English: \"{input_text}\""
-        inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+        inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, max_length=128)
 
         # Generate the translation
         output_sequences = model.generate(
