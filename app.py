@@ -1,40 +1,23 @@
 import os
 import subprocess
+import time
 from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-from twelvelabs import TwelveLabs
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
+from scripts.transcribe_video import transcribe_video
+from scripts.record_video import record_video
 
 # --- Initialization ---
 load_dotenv()
-app = Flask(__name__, static_folder='frontend')
+app = Flask(__name__, static_folder='new_frontend/dist')
+CORS(app)
 
 # Load Translation Model
 model_path = "./results/final_model"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
-
-# Twelve Labs Client
-api_key = os.getenv("TWELVE_LABS_API_KEY")
-if not api_key:
-    raise ValueError("TWELVE_LABS_API_KEY not found in .env file")
-client = TwelveLabs(api_key=api_key)
-
-# --- Helper Functions ---
-def process_media(file_path, client):
-    index_name = "dialect-translator-videos"
-    indexes = client.index.list()
-    index = next((i for i in indexes if i.name == index_name), None)
-    if not index:
-        index = client.index.create(name=index_name, models=[{"name": "marengo2.7", "options": ["visual", "audio"]}])
-
-    task = client.task.create(index_id=index.id, file=file_path, language="en")
-    task.wait()
-    
-    transcript_data = client.task.transcription(task.id)
-    transcript = " ".join([segment['text'] for segment in transcript_data])
-    return transcript
 
 def translate_text(text, model, tokenizer):
     prompt = f"Translate the following Caribbean dialect phrase to standard English: \"{text}\""
@@ -62,46 +45,70 @@ def static_proxy(path):
 
 @app.route('/api/translate', methods=['POST'])
 def translate():
-    input_type = request.form.get('type')
+    data = request.form
+    files = request.files
     raw_transcript = ""
-    
+
     try:
-        if input_type == 'text':
-            raw_transcript = request.form.get('text')
-        elif input_type in ['audio', 'video', 'record']:
-            file = request.files.get('file')
-            if not file:
-                return jsonify({"error": "No file provided."}), 400
-            
+        if 'text' in data:
+            raw_transcript = data['text']
+        elif 'file' in files:
+            file = files['file']
             upload_folder = 'temp_uploads'
             os.makedirs(upload_folder, exist_ok=True)
             filename = secure_filename(file.filename)
             file_path = os.path.join(upload_folder, filename)
             file.save(file_path)
             
-            raw_transcript = process_media(file_path, client)
-            os.remove(file_path) # Clean up the uploaded file
+            raw_transcript = transcribe_video(file_path)
+            os.remove(file_path)  # Clean up the uploaded file
         else:
-            return jsonify({"error": "Invalid input type."}), 400
+            return jsonify({"error": "No input provided."}), 400
 
         if not raw_transcript:
             return jsonify({"error": "Could not extract text from input."}), 400
 
         translated_text = translate_text(raw_transcript, model, tokenizer)
         
-        # For simplicity, we're not generating audio in this version.
-        # You can integrate a TTS service here if needed.
-        audio_url = None 
-
         return jsonify({
             "original": raw_transcript,
             "translated": translated_text,
-            "audioUrl": audio_url
         })
 
     except Exception as e:
         print(f"Error during translation: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/record', methods=['POST'])
+def record_and_transcribe():
+    try:
+        output_folder = 'temp_recordings'
+        os.makedirs(output_folder, exist_ok=True)
+        video_path = os.path.join(output_folder, f"recording_{int(time.time())}.mp4")
+        
+        # Record video
+        record_video(video_path, duration=10)
+        
+        # Transcribe video
+        raw_transcript = transcribe_video(video_path)
+        
+        # Clean up the recorded file
+        os.remove(video_path)
+        
+        if not raw_transcript:
+            return jsonify({"error": "Could not transcribe the recording."}), 400
+            
+        # Translate the transcript
+        translated_text = translate_text(raw_transcript, model, tokenizer)
+        
+        return jsonify({
+            "original": raw_transcript,
+            "translated": translated_text,
+        })
+
+    except Exception as e:
+        print(f"Error during recording/transcription: {e}")
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5002)

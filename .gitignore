@@ -33,3 +33,10 @@ build/
 
 # OS specific
 .DS_Store
+# Node.js dependencies
+new_frontend/node_modules/
+new_frontend/dist/
+
+# Temporary recordings and uploads
+temp_recordings/
+temp_uploads/
