@@ -1,3 +1,5 @@
+# This script splits the training data into a training set and a validation set.
+# This is a crucial step for evaluating the performance of the model during training.
 import json
 import os
 from sklearn.model_selection import train_test_split

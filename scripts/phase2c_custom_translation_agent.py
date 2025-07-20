@@ -1,49 +1,45 @@
-import os
-import google.generativeai as genai
-from dotenv import load_dotenv
+import torch
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+import argparse
 
-# Load environment variables
-load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY not found in .env file")
-
-genai.configure(api_key=GEMINI_API_KEY)
-
-# --- Configuration ---
-# IMPORTANT: Replace this with the name of your fine-tuned model
-# You can find this in the output of the fine-tuning job.
-CUSTOM_MODEL_NAME = "tunedModels/dialect-translator-gemini-..." 
-
-def run_custom_translation_pipeline(text: str) -> str:
+def translate_with_custom_model(input_text):
     """
-    Translates a dialect phrase using the fine-tuned Gemini model.
+    Translates a given dialect phrase to standard English using the fine-tuned model.
     """
-    if "..." in CUSTOM_MODEL_NAME:
-        return "Error: Please update CUSTOM_MODEL_NAME with your fine-tuned model's name."
-
-    model = genai.GenerativeModel(CUSTOM_MODEL_NAME)
-    
-    print(f"--- Running Custom Translation for: '{text}' ---")
+    model_path = "./results/final_model"
     
     try:
-        # The prompt format should match what the model was trained on
-        prompt = f"Translate the following Caribbean dialect phrase to standard English: \"{text}\""
-        response = model.generate_content(prompt)
-        translation = response.text.strip()
-        print(f"  Fine-tuned Gemini Translation: '{translation}'")
-        return translation
+        # Load the fine-tuned model and tokenizer
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
+        
+        # Prepare the input text with the same prompt used during training
+        prompt = f"Translate the following Caribbean dialect phrase to standard English: \"{input_text}\""
+        inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+
+        # Generate the translation
+        output_sequences = model.generate(
+            input_ids=inputs['input_ids'],
+            attention_mask=inputs['attention_mask'],
+            max_length=50,
+            num_beams=5,  # Beam search for better quality
+            early_stopping=True
+        )
+        
+        # Decode the output
+        translation = tokenizer.decode(output_sequences[0], skip_special_tokens=True)
+
+        return translation.strip()
+
     except Exception as e:
-        print(f"Error using fine-tuned Gemini model: {e}")
-        return f"Error: Could not translate '{text}' with custom model."
+        return f"An error occurred: {e}"
 
 if __name__ == "__main__":
-    test_phrases = [
-        "Mi soon come.",
-        "She a real boss.",
-        "De party did shot.",
-    ]
-
-    for phrase in test_phrases:
-        translation = run_custom_translation_pipeline(phrase)
-        print(f"  Final Result: '{translation}'\n")
+    parser = argparse.ArgumentParser(description="Translate dialect to standard English using a custom fine-tuned model.")
+    parser.add_argument("dialect_phrase", type=str, help="The Caribbean dialect phrase to translate.")
+    args = parser.parse_args()
+    
+    translation = translate_with_custom_model(args.dialect_phrase)
+    print(f"\nDialect Phrase: {args.dialect_phrase}")
+    print(f"Standard English Translation: {translation}")
+    
