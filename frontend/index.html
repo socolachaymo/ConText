@@ -3,18 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dialect-Aware Translator</title>
+    <title>ConText - Dialect-Aware Translator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Dialect-Aware Translator</h1>
-        <p>Enter a dialect phrase below to translate it to standard English.</p>
-
-        <div class="input-section">
-            <textarea id="dialect-input" placeholder="e.g., 'Mi soon come'"></textarea>
-            <button id="translate-btn">Translate</button>
+        <div class="header">
+            <img src="spritesheet.png" alt="ConText Logo" class="logo">
+            <h1>ConText Translator</h1>
         </div>
+        <p>Translate Caribbean dialect from text, audio, or video into standard English.</p>
+
+        <div class="input-selection">
+            <label for="inputType">Choose your input method:</label>
+            <select id="inputType">
+                <option value="text">Text</option>
+                <option value="audio">Audio File</option>
+                <option value="video">Video File</option>
+                <option value="record">Record Video</option>
+            </select>
+        </div>
+
+        <!-- Dynamic Input Sections -->
+        <div id="text-input-section" class="input-section active">
+            <textarea id="dialect-input" placeholder="e.g., 'Mi soon come'"></textarea>
+        </div>
+
+        <div id="file-input-section" class="input-section">
+            <input type="file" id="file-input" accept="audio/*,video/*">
+            <label for="file-input" class="file-label">Choose a file...</label>
+        </div>
+
+        <div id="record-input-section" class="input-section">
+            <button id="record-btn">Start Recording</button>
+            <video id="video-preview" width="400" style="display: none;"></video>
+        </div>
+        
+        <button id="translate-btn">Translate</button>
+
+        <div id="loader" class="loader" style="display: none;"></div>
 
         <div class="results-section" style="display: none;">
             <h2>Results</h2>

@@ -1,41 +1,47 @@
+# This script prepares the training data for the translation model.
+# It converts a CSV file of dialect and standard English pairs into a
+# JSONL file formatted for fine-tuning a large language model.
 import json
 import os
-from phase3_feedback_loop import run_feedback_loop
+import csv
+import json
 
-def prepare_training_data():
+def prepare_training_data_from_csv():
     """
-    Loads dialect segments, translates them using the full feedback loop,
+    Loads dialect and standard English pairs from a CSV file
     and saves them as a structured dataset for LLM fine-tuning.
     """
-    input_path = "data/segments.json"
+    input_path = "augmented_dataset.csv"
     output_path = "data/training_data.jsonl"
 
     if not os.path.exists(input_path):
         print(f"Error: Input file not found at {input_path}")
-        print("Please run phase1_data_ingestion.py first.")
         return
-
-    with open(input_path, "r") as f:
-        segments = json.load(f)
-
-    print(f"Found {len(segments)} segments to process.")
 
     # Ensure the output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    with open(output_path, "w") as f_out:
-        for i, segment in enumerate(segments):
-            dialect_text = segment.get("text")
-            if not dialect_text:
-                continue
-
-            print(f"\n--- Processing segment {i+1}/{len(segments)} ---")
+    try:
+        with open(input_path, "r", encoding="utf-8") as f_in, \
+             open(output_path, "w") as f_out:
             
-            # Get the high-quality translation
-            standard_english_text = run_feedback_loop(dialect_text)
+            reader = csv.reader(f_in)
+            header = next(reader) # Skip header row
+            
+            print(f"Reading from {input_path} with header: {header}")
+            
+            count = 0
+            for row in reader:
+                if not row or len(row) < 2:
+                    continue
 
-            if "Error:" not in standard_english_text:
-                # Create a JSON object for the training pair in the format required by Gemini
+                dialect_text = row[0].replace("tec:", "").strip()
+                standard_english_text = row[1].strip()
+
+                if not dialect_text or not standard_english_text:
+                    continue
+
+                # Create a JSON object for the training pair
                 training_pair = {
                     "input_text": f"Translate the following Caribbean dialect phrase to standard English: \"{dialect_text}\"",
                     "output_text": standard_english_text
@@ -43,11 +49,13 @@ def prepare_training_data():
                 
                 # Write the JSON object as a new line in the output file
                 f_out.write(json.dumps(training_pair) + "\n")
-                print(f"  Saved training pair to {output_path}")
-            else:
-                print(f"  Skipping segment due to translation error.")
+                count += 1
 
-    print(f"\nTraining data preparation complete. Saved to {output_path}")
+        print(f"\nSuccessfully processed {count} training pairs.")
+        print(f"Training data preparation complete. Saved to {output_path}")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    prepare_training_data()
+    prepare_training_data_from_csv()

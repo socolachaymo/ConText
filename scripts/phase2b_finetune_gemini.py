@@ -1,3 +1,6 @@
+# This script fine-tunes a Gemini model for translation.
+# It uploads training and validation data, starts a fine-tuning job,
+# and monitors its progress until completion.
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -9,6 +12,26 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not found in .env file")
 
+# --- API Key Validation Step ---
+import subprocess
+print("Validating API key with a direct curl request...")
+validation_command = [
+    "curl",
+    "-H", "Content-Type: application/json",
+    f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
+]
+try:
+    result = subprocess.run(validation_command, capture_output=True, text=True, check=True)
+    print("API key validation successful.")
+except subprocess.CalledProcessError as e:
+    print("\n--- API Key Validation Failed ---")
+    print(f"Curl command failed with exit code {e.returncode}")
+    print(f"Response: {e.stdout}")
+    print("Please double-check your GEMINI_API_KEY in the .env file.")
+    exit()
+# --------------------------------
+
+# Force the API key directly into the configuration
 genai.configure(api_key=GEMINI_API_KEY)
 
 def finetune_gemini_model():
@@ -26,14 +49,13 @@ def finetune_gemini_model():
 
     try:
         # 1. Start the fine-tuning job
-        print("Starting Gemini fine-tuning job...")
-        
+        print("Starting new fine-tuning job...")
         tuned_model = genai.tuned_model.create(
-            source_model="models/gemini-1.0-pro-001", # A tunable model
+            source_model="models/gemini-1.0-pro-001",
             training_data=train_file_path,
             validation_data=val_file_path,
             display_name=model_display_name,
-            epoch_count=5, # Number of training epochs
+            epoch_count=5,
         )
 
         print("\nFine-tuning job started successfully!")
@@ -45,7 +67,7 @@ def finetune_gemini_model():
         print("\nMonitoring job status... (This may take a while)")
         while tuned_model.state != 'ACTIVE':
             time.sleep(60) # Wait for 1 minute before checking again
-            tuned_model = genai.get_tuned_model(tuned_model.name)
+            tuned_model = genai.get_tuned_model(name=tuned_model.name)
             print(f"  Current State: {tuned_model.state} at {time.ctime()}")
 
         print("\n--- Fine-Tuning Complete! ---")

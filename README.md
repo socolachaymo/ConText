@@ -1,32 +1,37 @@
 # ConText: Dialect-Aware Translation and Audio Synthesis
 
-ConText is a powerful tool that translates Caribbean dialect into standard English and generates high-quality audio of the translation. This project leverages a custom-trained language model combined with Google's Gemini for validation, ensuring accurate and nuanced translations.
+ConText is a powerful tool that translates dialect into standard English and generates high-quality text  of the translation. This project leverages a custom-trained language model combined with Google's Gemini for validation, ensuring accurate and nuanced translations.
 
 ## Features
 
--   **Video/Audio Transcription**: Ingests video data using Twelve Labs to extract dialectal speech.
--   **Custom LLM Translation**: Uses a fine-tuned GPT-3.5 Turbo model to translate Caribbean dialect to standard English.
--   **Gemini Validation**: Employs Gemini 1.5 Flash to review and refine the translation for accuracy and natural phrasing.
--   **Text-to-Speech**: Generates high-quality audio of the final translation using ElevenLabs.
+-   **Video/Audio Transcription**: Ingests video data using Twelve Labs to extract speech.
+-   **Custom LLM Translation**: Uses a fine-tuned T5 model to translate dialect to standard English.
+-   **Text-to-Speech**: Generates high-quality audio of the final translation.
 -   **Web Interface**: A simple frontend to input dialectal phrases and receive the translated text and audio.
 
 ## Project Workflow
 
-1.  **Data Ingestion & Preparation**:
-    -   `phase1_data_ingestion.py`: Scrapes video URLs using Twelve Labs to get raw dialect transcripts.
-    -   `phase1b_prepare_training_data.py`: Processes the raw transcripts through a robust translation pipeline (Gemini + GPT-4o) to create a high-quality `(dialect, standard_english)` dataset (`training_data.jsonl`).
+The project is divided into several scripts, each responsible for a specific part of the workflow.
 
-2.  **Model Fine-Tuning**:
-    -   `phase2b_finetune_llm.py`: Uploads the training data to OpenAI and starts a fine-tuning job on `gpt-3.5-turbo`.
+### Data Collection and Preparation
 
-3.  **Translation & Synthesis**:
-    -   `app.py`: A Flask web server that exposes a translation API.
-    -   The user inputs a dialect phrase in the frontend.
-    -   The backend calls `phase2c_custom_translation_agent.py`, which:
-        1.  Gets an initial translation from the fine-tuned model.
-        2.  Uses Gemini to validate and correct the translation.
-    -   The final, validated text is sent to `phase4_audio_reoutput.py` to generate an MP3 file using ElevenLabs.
-    -   The frontend receives the translated text and a link to the audio file.
+2.  **`get_youtube_comments.py`**: Fetches comments from a list of specified YouTube channels using the YouTube Data API.
+4.  **`translate_new_data.py`**: Uses a fine-tuned translation model to generate draft translations for a new dataset of comments.
+5.  **`merge_datasets.py`**: Merges the original dataset with a new dataset of translated comments to create an augmented dataset.
+6.  **`phase1b_prepare_training_data.py`**: Prepares the training data for the translation model by converting a CSV file of dialect and standard English pairs into a JSONL file.
+7.  **`split_dataset.py`**: Splits the training data into a training set and a validation set.
+
+### Model Training and Evaluation
+
+8.  **`phase2b_finetune_llm.py`**: Fine-tunes a T5 model for translation using the Hugging Face Transformers library.
+10. **`evaluate_model.py`**: Evaluates the fine-tuned translation model using the BLEU score.
+
+### Audio and Video Tools
+
+11. **`record_audio.py`**: Records audio from the microphone.
+12. **`record_video.py`**: Records a video from the default camera.
+13. **`convert_audio_to_video.py`**: Converts an audio file to a video file with a black screen.
+14. **`test_audio_pipeline.py`**: A pipeline for transcribing a video file using Twelve Labs (still has to be fixed).
 
 ## Setup and Installation
 
@@ -52,58 +57,60 @@ ConText is a powerful tool that translates Caribbean dialect into standard Engli
     ```
     TWELVE_LABS_API_KEY="your_twelve_labs_api_key"
     GEMINI_API_KEY="your_gemini_api_key"
-    ELEVENLABS_API_KEY="your_elevenlabs_api_key"
     ```
 
-## How to Run
+## How to Run the Scripts
 
-### Step 1: Scrape Video URLs
+Each script can be run independently. Here is a typical workflow:
 
-1.  (Optional) If you want to use a different channel, open `scripts/get_channel_videos.py` and change the `CHANNEL_URL` variable.
-2.  Run the scraping script to gather all video URLs from the channel:
-    ```bash
+### Step 1: Collect Data
+
+1.  **Fetch Video URLs**: (Just use comments for now)
+     ```bash
     python scripts/get_channel_videos.py
     ```
-    This will create `data/video_urls.txt`.
+2.  **Fetch YouTube Comments**:
+    ```bash
+    python scripts/get_youtube_comments.py
+    ```
 
-### Step 2: Prepare Training Data
+### Step 2: Process Data and Prepare for Training
 
-1.  Run the data ingestion script to download and transcribe the videos:
+1.  **Ingest Videos**:
     ```bash
     python scripts/phase1_data_ingestion.py
     ```
-2.  Run the data preparation script to create the high-quality training file:
+2.  **Translate New Comments**:
+    ```bash
+    python scripts/translate_new_data.py
+    ```
+3.  **Merge Datasets**:
+    ```bash
+    python scripts/merge_datasets.py
+    ```
+4.  **Prepare Training Data**:
     ```bash
     python scripts/phase1b_prepare_training_data.py
     ```
-3.  Split the dataset into training and validation sets:
+5.  **Split Dataset**:
     ```bash
     python scripts/split_dataset.py
     ```
-    This will create `data/train.jsonl` and `data/validation.jsonl`.
 
-### Step 3: Fine-Tune the Gemini Model
+### Step 3: Fine-Tune and Evaluate a Model
 
-1.  Run the fine-tuning script:
+1.  **Fine-Tune a T5 Model**:
     ```bash
-    python scripts/phase2b_finetune_gemini.py
+    python scripts/phase2b_finetune_llm.py
     ```
-2.  This script will monitor the job and let you know when it's complete. Once finished, copy the new model name (e.g., `tunedModels/dialect-translator-gemini-...`).
-
-### Step 4: Evaluate Model Accuracy
-
-1.  Open `scripts/evaluate_model.py` and update the `CUSTOM_MODEL_NAME` variable with your new fine-tuned model name.
-2.  Run the evaluation script:
+2.  **Evaluate the Model**:
     ```bash
     python scripts/evaluate_model.py
     ```
-    This will output the BLEU score, indicating the model's performance on the validation data.
 
-### Step 5: Update and Run the Application
+### Step 4: Run the Application
 
-1.  Open `scripts/phase2c_custom_translation_agent.py` and update the `CUSTOM_MODEL_NAME` variable with your new fine-tuned model name.
-2.  Run the Flask application:
+1.  **Run the Flask application**:
     ```bash
     python app.py
     ```
-3.  Open your browser and navigate to `http://127.0.0.1:5000`. You can now use the application to translate dialect phrases.

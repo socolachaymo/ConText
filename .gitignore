@@ -1,0 +1,35 @@
+# Environment variables
+.env
+
+# Data and media files
+data/
+audio_clips/
+output_audio/
+results/
+temp_videos/
+transcripts/
+*.csv
+*.jsonl
+
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info
+dist/
+build/
+
+# Log files
+*.log
+*.err
+*.out
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*.swn
+
+# OS specific
+.DS_Store
