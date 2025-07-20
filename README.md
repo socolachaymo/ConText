@@ -24,6 +24,7 @@ The project is divided into several scripts, each responsible for a specific par
 ### Model Training and Evaluation
 
 8.  **`phase2b_finetune_llm.py`**: Fine-tunes a T5 model for translation using the Hugging Face Transformers library.
+9.  **`phase2c_custom_translation_agent.py`**: Run to translate text and vice versa
 10. **`evaluate_model.py`**: Evaluates the fine-tuned translation model using the BLEU score.
 
 ### Audio and Video Tools
@@ -110,7 +111,7 @@ Each script can be run independently. Here is a typical workflow:
 
 ### Step 4: Run the Application
 
-1.  **Run the Flask application**:
-    ```bash
-    python app.py
-    ```
+1 eg python3 scripts/phase2c_custom_translation_agent.py "Waz de scene" 
+
+Dialect Phrase: Waz de scene
+Standard English Translation: What's up?
