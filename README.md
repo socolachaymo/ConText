@@ -1,6 +1,6 @@
 # ConText: Dialect-Aware Translation and Audio Synthesis
 
-ConText is a powerful tool that translates dialect into standard English and generates high-quality audio of the translation. This project leverages a custom-trained language model combined with Google's Gemini for validation, ensuring accurate and nuanced translations.
+ConText is a powerful tool that translates dialect into standard English and generates high-quality audio of the translation. 
 
 ## Features
 
