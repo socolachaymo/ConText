@@ -2,6 +2,7 @@
 # This is useful for processing audio files with tools that expect video input.
 import os
 import subprocess
+import sys
 
 def convert_audio_to_video(audio_path, output_path):
     """
@@ -36,8 +37,18 @@ def convert_audio_to_video(audio_path, output_path):
         print("Error during ffmpeg conversion:")
         print(e.stderr)
         return False
+    except FileNotFoundError:
+        print("Error: ffmpeg not found. Please ensure ffmpeg is installed and in your system's PATH.")
+        return False
 
 if __name__ == '__main__':
-    audio_file = "audio_clips/KES WOTLESS Music Video.mp3"
-    video_file = "temp_videos/KES_WOTLESS_video.mp4"
-    convert_audio_to_video(audio_file, video_file)
+    # This block is for testing the script directly from the command line.
+    # The main application imports and uses the convert_audio_to_video function.
+    if len(sys.argv) != 3:
+        print("Usage: python scripts/convert_audio_to_video.py <input_audio_path> <output_video_path>")
+        sys.exit(1)
+    
+    input_audio_file = sys.argv[1]
+    output_video_file = sys.argv[2]
+    
+    convert_audio_to_video(input_audio_file, output_video_file)

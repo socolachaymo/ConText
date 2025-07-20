@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from scripts.transcribe_video import transcribe_video
 from scripts.record_video import record_video
+from scripts.convert_audio_to_video import convert_audio_to_video
 
 # --- Initialization ---
 load_dotenv()
@@ -59,9 +60,19 @@ def translate():
             filename = secure_filename(file.filename)
             file_path = os.path.join(upload_folder, filename)
             file.save(file_path)
+
+            if file.content_type.startswith('audio/'):
+                video_path = os.path.join(upload_folder, f"{os.path.splitext(filename)[0]}.mp4")
+                if convert_audio_to_video(file_path, video_path):
+                    raw_transcript = transcribe_video(video_path)
+                    os.remove(video_path)
+                else:
+                    os.remove(file_path)
+                    return jsonify({"error": "Failed to convert audio to video."}), 500
+            else:
+                raw_transcript = transcribe_video(file_path)
             
-            raw_transcript = transcribe_video(file_path)
-            os.remove(file_path)  # Clean up the uploaded file
+            os.remove(file_path)
         else:
             return jsonify({"error": "No input provided."}), 400
 
