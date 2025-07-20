@@ -2,6 +2,7 @@ accelerate
 datasets
 elevenlabs
 ffmpeg-python
+Flask-Cors
 Flask
 google-generativeai
 nltk
@@ -16,3 +17,6 @@ torch
 transformers
 twelvelabs
 yt-dlp
+
+twelvelabs
+opencv-python

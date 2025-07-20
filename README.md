@@ -1,11 +1,12 @@
 # ConText: Dialect-Aware Translation and Audio Synthesis
 
-ConText is a powerful tool that translates dialect into standard English and generates high-quality text  of the translation. This project leverages a custom-trained language model combined with Google's Gemini for validation, ensuring accurate and nuanced translations.
+ConText is a powerful tool that translates Caribbean dialect into standard English and generates high-quality audio of the translation. This project leverages a custom-trained language model combined with Google's Gemini for validation, ensuring accurate and nuanced translations.
 
 ## Features
 
--   **Video/Audio Transcription**: Ingests video data using Twelve Labs to extract speech.
--   **Custom LLM Translation**: Uses a fine-tuned T5 model to translate dialect to standard English.
+-   **Video/Audio Transcription**: Ingests video data using Twelve Labs to extract dialectal speech.
+-   **Custom LLM Translation**: Uses a fine-tuned T5 model to translate Caribbean dialect to standard English.
+-   **Gemini Fine-tuning**: Supports fine-tuning a Gemini model for translation.
 -   **Text-to-Speech**: Generates high-quality audio of the final translation.
 -   **Web Interface**: A simple frontend to input dialectal phrases and receive the translated text and audio.
 
@@ -15,7 +16,9 @@ The project is divided into several scripts, each responsible for a specific par
 
 ### Data Collection and Preparation
 
+1.  **`get_channel_videos.py`**: Fetches video URLs from a specified YouTube channel using `yt-dlp`.
 2.  **`get_youtube_comments.py`**: Fetches comments from a list of specified YouTube channels using the YouTube Data API.
+3.  **`phase1_data_ingestion.py`**: Ingests videos from a list of URLs into Twelve Labs for analysis. It downloads each video, uploads it to Twelve Labs, and extracts the transcript.
 4.  **`translate_new_data.py`**: Uses a fine-tuned translation model to generate draft translations for a new dataset of comments.
 5.  **`merge_datasets.py`**: Merges the original dataset with a new dataset of translated comments to create an augmented dataset.
 6.  **`phase1b_prepare_training_data.py`**: Prepares the training data for the translation model by converting a CSV file of dialect and standard English pairs into a JSONL file.
@@ -24,7 +27,7 @@ The project is divided into several scripts, each responsible for a specific par
 ### Model Training and Evaluation
 
 8.  **`phase2b_finetune_llm.py`**: Fine-tunes a T5 model for translation using the Hugging Face Transformers library.
-9.  **`phase2c_custom_translation_agent.py`**: Run to translate text and vice versa
+9.  **`phase2b_finetune_gemini.py`**: Fine-tunes a Gemini model for translation.
 10. **`evaluate_model.py`**: Evaluates the fine-tuned translation model using the BLEU score.
 
 ### Audio and Video Tools
@@ -32,7 +35,7 @@ The project is divided into several scripts, each responsible for a specific par
 11. **`record_audio.py`**: Records audio from the microphone.
 12. **`record_video.py`**: Records a video from the default camera.
 13. **`convert_audio_to_video.py`**: Converts an audio file to a video file with a black screen.
-14. **`test_audio_pipeline.py`**: A pipeline for transcribing a video file using Twelve Labs (still has to be fixed).
+14. **`test_audio_pipeline.py`**: A pipeline for transcribing a video file using Twelve Labs.
 
 ## Setup and Installation
 
@@ -66,8 +69,8 @@ Each script can be run independently. Here is a typical workflow:
 
 ### Step 1: Collect Data
 
-1.  **Fetch Video URLs**: (Just use comments for now)
-     ```bash
+1.  **Fetch Video URLs**:
+    ```bash
     python scripts/get_channel_videos.py
     ```
 2.  **Fetch YouTube Comments**:
@@ -104,14 +107,76 @@ Each script can be run independently. Here is a typical workflow:
     ```bash
     python scripts/phase2b_finetune_llm.py
     ```
+    **OR**
+    **Fine-Tune a Gemini Model**:
+    ```bash
+    python scripts/phase2b_finetune_gemini.py
+    ```
 2.  **Evaluate the Model**:
     ```bash
     python scripts/evaluate_model.py
     ```
 
-### Step 4: Run the Application
+## Running the Application
 
-1 eg python3 scripts/phase2c_custom_translation_agent.py "Waz de scene" 
+To run the web application, you need to have the backend server running and the frontend built.
 
-Dialect Phrase: Waz de scene
-Standard English Translation: What's up?
+### 1. Build the Frontend
+
+The frontend is a React application built with Vite. The Flask server is configured to serve the built frontend files.
+
+1.  **Navigate to the frontend directory**:
+    ```bash
+    cd new_frontend
+    ```
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
+    or if you use bun:
+    ```bash
+    bun install
+    ```
+3.  **Build the frontend for production**:
+    ```bash
+    npm run build
+    ```
+    or
+    ```bash
+    bun run build
+    ```
+    This will create a `dist` directory in `new_frontend` with the static files. Once the build is complete, navigate back to the root directory:
+    ```bash
+    cd ..
+    ```
+
+### 2. Run the Backend Server
+
+From the root directory of the project, run the Flask application:
+
+```bash
+python app.py
+```
+
+The backend server will start on `http://127.0.0.1:5002`.
+
+### 3. Access the Application
+
+Once the backend is running, open your browser and navigate to:
+
+[http://127.0.0.1:5002](http://127.0.0.1:5002)
+
+You can now use the application to translate dialect phrases by typing text, uploading an audio/video file, or recording a video directly in the browser.
+
+### Where is the Translation Logic?
+
+The core translation logic is not in a standalone script. It is handled within the Flask web server, **`app.py`**.
+
+Specifically, the `translate_text()` function inside `app.py` takes the input text, uses the loaded fine-tuned model and tokenizer, and returns the standard English translation. The web interface is the primary way to interact with the translation model.
+
+### Command-Line Translation
+
+If you want to translate a single phrase from the command line, you can use the `phase2c_custom_translation_agent.py` script:
+
+```bash
+python3 scripts/phase2c_custom_translation_agent.py "Your dialect phrase here"
