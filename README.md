@@ -1,12 +1,11 @@
 # ConText: Dialect-Aware Translation and Audio Synthesis
 
-ConText is a powerful tool that translates Caribbean dialect into standard English and generates high-quality audio of the translation. This project leverages a custom-trained language model combined with Google's Gemini for validation, ensuring accurate and nuanced translations.
+ConText is a powerful tool that translates dialect into standard English and generates high-quality audio of the translation. This project leverages a custom-trained language model combined with Google's Gemini for validation, ensuring accurate and nuanced translations.
 
 ## Features
 
 -   **Video/Audio Transcription**: Ingests video data using Twelve Labs to extract dialectal speech.
--   **Custom LLM Translation**: Uses a fine-tuned T5 model to translate Caribbean dialect to standard English.
--   **Gemini Fine-tuning**: Supports fine-tuning a Gemini model for translation.
+-   **Custom LLM Translation**: Uses a fine-tuned T5 model to translate dialect to standard English.
 -   **Text-to-Speech**: Generates high-quality audio of the final translation.
 -   **Web Interface**: A simple frontend to input dialectal phrases and receive the translated text and audio.
 
@@ -16,7 +15,6 @@ The project is divided into several scripts, each responsible for a specific par
 
 ### Data Collection and Preparation
 
-1.  **`get_channel_videos.py`**: Fetches video URLs from a specified YouTube channel using `yt-dlp`.
 2.  **`get_youtube_comments.py`**: Fetches comments from a list of specified YouTube channels using the YouTube Data API.
 3.  **`phase1_data_ingestion.py`**: Ingests videos from a list of URLs into Twelve Labs for analysis. It downloads each video, uploads it to Twelve Labs, and extracts the transcript.
 4.  **`translate_new_data.py`**: Uses a fine-tuned translation model to generate draft translations for a new dataset of comments.
@@ -27,7 +25,6 @@ The project is divided into several scripts, each responsible for a specific par
 ### Model Training and Evaluation
 
 8.  **`phase2b_finetune_llm.py`**: Fine-tunes a T5 model for translation using the Hugging Face Transformers library.
-9.  **`phase2b_finetune_gemini.py`**: Fine-tunes a Gemini model for translation.
 10. **`evaluate_model.py`**: Evaluates the fine-tuned translation model using the BLEU score.
 
 ### Audio and Video Tools
@@ -106,11 +103,6 @@ Each script can be run independently. Here is a typical workflow:
 1.  **Fine-Tune a T5 Model**:
     ```bash
     python scripts/phase2b_finetune_llm.py
-    ```
-    **OR**
-    **Fine-Tune a Gemini Model**:
-    ```bash
-    python scripts/phase2b_finetune_gemini.py
     ```
 2.  **Evaluate the Model**:
     ```bash
