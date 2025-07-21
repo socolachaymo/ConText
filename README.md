@@ -37,22 +37,58 @@ The project is divided into several scripts, each responsible for a specific par
 13. **`convert_audio_to_video.py`**: Converts an audio file to a video file with a black screen.
 14. **`test_audio_pipeline.py`**: A pipeline for transcribing a video file using Twelve Labs.
 
-## Order for Scripts: 
-get_youtube_comments.py 
-phase1_data_ingestion.py 
-phase1b_prepare_training_data.py (prepares the data for a model)
-split_dataset.py (splits the data into training and testing sets)
-phase2b_finetune_llm.py or phase2b_finetune_gemini.py (fine-tunes a model)
-evaluate_model.py (evaluates the fine-tuned model)
-transcribe_video.py (transcribes a video)
-translate_new_data.py (translates new data)
-record_audio.py and record_video.py (for creating new data)
-convert_audio_to_video.py (utility script)
-merge_datasets.py (utility script)
-test_audio_pipeline.py (utility script)
-twelve_labs_trial.py (utility script)
-get_channel_videos.py (utility script)
-phase2c_custom_translation_agent.py (utility script)
+
+## 📜 Script Execution Order
+
+Below is the recommended order for running the scripts in this project, along with brief descriptions:
+
+### 🧪 Phase 1: Data Collection & Preparation
+
+* `get_youtube_comments.py`
+  → Scrapes comments from YouTube videos.
+* `phase1_data_ingestion.py`
+  → Downloads and organizes raw data.
+* `phase1b_prepare_training_data.py`
+  → Prepares the collected data for model training.
+* `split_dataset.py`
+  → Splits the dataset into training and testing subsets.
+
+### 🧠 Phase 2: Model Training & Evaluation
+
+* `phase2b_finetune_llm.py`
+  → Fine-tunes either a custom LLM on the prepared dataset.
+* `evaluate_model.py`
+  → Evaluates the performance of the fine-tuned model using BLEU
+  
+### 🗣️ Phase 3: Inference & Application
+
+* `transcribe_video.py`
+  → Transcribes speech from a video into text.
+* `translate_new_data.py`
+  → Translates new dialect or input text using the trained model.
+
+### 🎙️ Optional: Creating New Data
+
+* `record_audio.py`
+  → Records audio samples via mic.
+* `record_video.py`
+  → Records video samples for transcription and training.
+
+### 🛠️ Utility Scripts
+
+* `convert_audio_to_video.py`
+  → Converts audio-only files into video format.
+* `merge_datasets.py`
+  → Merges multiple dataset sources into one.
+* `test_audio_pipeline.py`
+  → Tests the full audio processing pipeline.
+* `twelve_labs_trial.py`
+  → Runs a trial using Twelve Labs APIs for video/audio understanding.
+* `get_channel_videos.py`
+  → Fetches all videos from a YouTube channel.
+* `phase2c_custom_translation_agent.py`
+  → Builds a custom agent for translation tasks.
+
 
 ## Setup and Installation
 
