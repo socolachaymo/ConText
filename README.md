@@ -37,6 +37,23 @@ The project is divided into several scripts, each responsible for a specific par
 13. **`convert_audio_to_video.py`**: Converts an audio file to a video file with a black screen.
 14. **`test_audio_pipeline.py`**: A pipeline for transcribing a video file using Twelve Labs.
 
+## Order for Scripts: 
+get_youtube_comments.py 
+phase1_data_ingestion.py 
+phase1b_prepare_training_data.py (prepares the data for a model)
+split_dataset.py (splits the data into training and testing sets)
+phase2b_finetune_llm.py or phase2b_finetune_gemini.py (fine-tunes a model)
+evaluate_model.py (evaluates the fine-tuned model)
+transcribe_video.py (transcribes a video)
+translate_new_data.py (translates new data)
+record_audio.py and record_video.py (for creating new data)
+convert_audio_to_video.py (utility script)
+merge_datasets.py (utility script)
+test_audio_pipeline.py (utility script)
+twelve_labs_trial.py (utility script)
+get_channel_videos.py (utility script)
+phase2c_custom_translation_agent.py (utility script)
+
 ## Setup and Installation
 
 1.  **Clone the repository:**
