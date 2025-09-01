@@ -54,7 +54,7 @@ def get_youtube_comments(api_key):
 
 if __name__ == "__main__":
     load_dotenv()
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("YOUTUBE_API_KEY")
     if not api_key:
-        raise ValueError("API key not found. Provide it in a .env file as GEMINI_API_KEY.")
+        raise ValueError("API key not found. Provide it in a .env file as YOUTUBE_API_KEY.")
     get_youtube_comments(api_key)
